@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alpha Project — EHD Venturi Simulator</title>
+  <meta name="description" content="알파프로젝트 EHD 이온풍 벤츄리 시뮬레이터, 실험 기록 및 데이터 분석 도구" />
+  <style>
+    :root {
+      --bg:#08111f;
+      --panel:#0f1c2e;
+      --panel2:#13243a;
+      --text:#eef4ff;
+      --muted:#a8b7cc;
+      --line:#243a56;
+      --accent:#69a8ff;
+      --accent2:#84e2c5;
+      --warn:#ffd479;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#06101d 0%,#0a1525 45%,#08111f 100%);color:var(--text);line-height:1.65}
+    a{color:inherit;text-decoration:none}
+    .wrap{width:min(1120px,calc(100% - 36px));margin:auto}
+    header{position:sticky;top:0;z-index:20;background:rgba(6,16,29,.82);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.07)}
+    nav{height:68px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .brand{font-weight:800;letter-spacing:.2px}
+    .navlinks{display:flex;gap:20px;color:var(--muted);font-size:14px}
+    .navlinks a:hover{color:var(--text)}
+    .hero{padding:88px 0 58px}
+    .eyebrow{display:inline-block;padding:7px 11px;border-radius:999px;border:1px solid rgba(105,168,255,.35);background:rgba(105,168,255,.09);color:#bdd8ff;font-size:13px;font-weight:700}
+    h1{font-size:clamp(42px,7vw,78px);line-height:1.02;margin:20px 0 20px;letter-spacing:-2.5px;max-width:900px}
+    .lead{font-size:clamp(17px,2.4vw,22px);color:var(--muted);max-width:820px}
+    .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-weight:750}
+    .btn.primary{background:linear-gradient(135deg,#4b8fff,#74b5ff);color:#04101f;border:none}
+    .btn.secondary:hover{border-color:#4b6d96}
+    section{padding:54px 0}
+    h2{font-size:32px;letter-spacing:-.8px;margin:0 0 12px}
+    .section-lead{color:var(--muted);max-width:800px;margin-bottom:26px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .card{background:linear-gradient(180deg,rgba(19,36,58,.95),rgba(13,28,46,.95));border:1px solid var(--line);border-radius:18px;padding:22px;min-height:190px}
+    .card h3{margin:0 0 10px;font-size:19px}
+    .card p{margin:0;color:var(--muted)}
+    .kicker{font-size:12px;font-weight:800;color:var(--accent2);letter-spacing:.09em;text-transform:uppercase;margin-bottom:12px}
+    .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .step{padding:20px;border:1px solid var(--line);border-radius:16px;background:rgba(15,28,46,.78)}
+    .num{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(105,168,255,.14);color:#bcd7ff;font-weight:850;margin-bottom:12px}
+    .note{border-left:3px solid var(--warn);padding:14px 16px;background:rgba(255,212,121,.07);color:#e8d7ad;border-radius:0 12px 12px 0}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#07111f;border:1px solid var(--line);padding:18px;border-radius:14px;color:#cfe2ff;overflow:auto;white-space:pre}
+    .footer{padding:42px 0 58px;color:var(--muted);border-top:1px solid rgba(255,255,255,.06);margin-top:30px}
+    .pillrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .pill{padding:6px 10px;border-radius:999px;background:#0d1c2d;border:1px solid var(--line);font-size:13px;color:#b9c8da}
+    @media (max-width:900px){.grid{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr 1fr}.navlinks{display:none}}
+    @media (max-width:620px){.grid,.flow{grid-template-columns:1fr}.hero{padding-top:64px}h1{letter-spacing:-1.5px}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <nav>
+      <div class="brand">ALPHA PROJECT</div>
+      <div class="navlinks">
+        <a href="#overview">소개</a>
+        <a href="#features">기능</a>
+        <a href="#workflow">실험 흐름</a>
+        <a href="#limitations">모델 한계</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">EHD · Ion Wind · Venturi · Experiment Analysis</span>
+      <h1>알파프로젝트 EHD 벤츄리 시뮬레이터</h1>
+      <p class="lead">축대칭 전기장 계산, 경험적 공간전하 모델, 벤츄리 유동 근사, 실험 CSV 기록, 실측–시뮬레이션 비교 분석을 한 흐름으로 묶은 공개 연구 도구입니다.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://colab.research.google.com/github/seunghyun949-dot/alpha-project/blob/main/notebooks/ehd_venturi_colab.ipynb" target="_blank" rel="noopener">Google Colab에서 실행</a>
+        <a class="btn secondary" href="https://github.com/seunghyun949-dot/alpha-project" target="_blank" rel="noopener">GitHub 저장소 보기</a>
+      </div>
+      <div class="pillrow">
+        <span class="pill">Python</span><span class="pill">NumPy</span><span class="pill">SciPy</span><span class="pill">Matplotlib</span><span class="pill">ipywidgets</span><span class="pill">Pandas</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="overview">
+    <div class="wrap">
+      <h2>무엇을 하는 프로젝트인가</h2>
+      <p class="section-lead">EHD 추진 장치의 형상과 전극 조건을 바꿔가며 상대적인 경향을 빠르게 비교하고, 실제 실험 데이터가 쌓이면 그 결과와 시뮬레이션 값을 같은 CSV에서 비교할 수 있도록 만든 실험 지원용 플랫폼입니다.</p>
+      <div class="grid">
+        <article class="card"><div class="kicker">Simulation</div><h3>축대칭 전위·전기장 해석</h3><p>전극 전압과 위치를 바꾸며 축대칭 Laplace 해를 계산하고 전기장 크기 분포를 시각화합니다.</p></article>
+        <article class="card"><div class="kicker">EHD Model</div><h3>공간전하 및 체적력 근사</h3><p>경험적 공간전하 분포와 Coulomb 체적력 <strong>f = ρₑE</strong>를 사용해 상대적인 EHD 구동 경향을 계산합니다.</p></article>
+        <article class="card"><div class="kicker">Experiment</div><h3>실험 데이터 기록</h3><p>에미터·콜렉터 정보, 전극 간격, 실측 전압·전류·풍속과 시뮬레이션 결과를 CSV에 함께 저장합니다.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>현재 구현된 기능</h2>
+      <div class="grid">
+        <article class="card"><h3>벤츄리 형상 조절</h3><p>입구·목·출구 반지름과 throat 위치를 UI에서 바꾸며 형상 효과를 비교합니다.</p></article>
+        <article class="card"><h3>3전극 전압 설정</h3><p>방전, 유도, 가속 전극 전압과 가속 전극 위치·길이를 조절할 수 있습니다.</p></article>
+        <article class="card"><h3>실측/시뮬 비교</h3><p>실측 풍속과 시뮬레이션 출구 유속, 전압·전류와 풍속 관계를 자동 그래프로 확인합니다.</p></article>
+        <article class="card"><h3>1 mm 간격 분석</h3><p>전극 간격을 1 mm 단위로 그룹화해 평균 풍속, 표준편차, 평균 전류·전압·오차율을 계산합니다.</p></article>
+        <article class="card"><h3>형상별 통계</h3><p>에미터/콜렉터 조합별 평균 풍속과 표준편차를 비교할 수 있습니다.</p></article>
+        <article class="card"><h3>최적 관측 조건 선택</h3><p>현재 CSV 안에서 최대 풍속, 최대 속도 증가량, 최소 오차 등 목적별 최고 관측 조건을 찾아줍니다.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="workflow">
+    <div class="wrap">
+      <h2>사용 흐름</h2>
+      <p class="section-lead">코드를 따로 내려받지 않아도 Colab에서 바로 실행할 수 있습니다.</p>
+      <div class="flow">
+        <div class="step"><div class="num">1</div><strong>Colab 실행</strong><p>위의 버튼으로 공개 노트북을 엽니다.</p></div>
+        <div class="step"><div class="num">2</div><strong>시뮬 조건 설정</strong><p>형상과 전극 전압을 정하고 RECALCULATE를 실행합니다.</p></div>
+        <div class="step"><div class="num">3</div><strong>실험값 저장</strong><p>전압·전류·풍속과 전극 정보를 입력해 CSV에 누적합니다.</p></div>
+        <div class="step"><div class="num">4</div><strong>통계 분석</strong><p>비교 그래프, 간격별 통계, 형상별 성능과 최적 관측 조건을 확인합니다.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Repository 구조</h2>
+      <div class="mono">alpha-project/
+├─ simulation/
+│  ├─ ehd_venturi_colab_complete.py
+│  └─ experiment_tools.py
+├─ analysis/
+│  └─ experiment_analysis.py
+├─ notebooks/
+│  └─ ehd_venturi_colab.ipynb
+├─ docs/
+│  └─ index.html
+├─ README.md
+└─ requirements.txt</div>
+    </div>
+  </section>
+
+  <section id="limitations">
+    <div class="wrap">
+      <h2>모델 해석 시 주의</h2>
+      <div class="note">현재 시뮬레이터는 완전 결합 코로나 방전·전하수송·Navier–Stokes 해석이 아닙니다. 공간전하는 경험적 분포이며 유동 응답도 단순화된 근사 모델입니다. 따라서 출력값은 절대 추력 예측값보다는 형상·전압 조건 간 <strong>상대 비교</strong>와 실험 설계 보조에 적합합니다.</div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">Alpha Project · Public research tooling for EHD / ion-wind experiments.</div>
+</footer>
+</body>
+</html>
