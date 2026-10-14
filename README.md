@@ -2,9 +2,7 @@
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seunghyun949-dot/alpha-project/blob/main/notebooks/ehd_venturi_colab.ipynb)
 
-이 저장소는 알파프로젝트용 축대칭 EHD(Electrohydrodynamic) 벤츄리 시뮬레이터 코드를 관리합니다.
-
-현재 구현은 Google Colab에서 실행하는 것을 기준으로 하며, `ipywidgets` 기반 UI를 사용해 벤츄리 형상과 전극 전압/위치를 조절한 뒤 결과를 다시 계산할 수 있습니다.
+이 저장소는 알파프로젝트용 축대칭 EHD(Electrohydrodynamic) 벤츄리 시뮬레이터와 실험 데이터 기록/비교 도구를 관리합니다.
 
 ## Repository structure
 
@@ -13,53 +11,19 @@ alpha-project/
 ├─ notebooks/
 │  └─ ehd_venturi_colab.ipynb
 ├─ simulation/
-│  └─ ehd_venturi_colab_complete.py
+│  ├─ ehd_venturi_colab_complete.py
+│  └─ experiment_tools.py
 ├─ README.md
 └─ requirements.txt
 ```
 
 ## Fastest way to run
 
-README 상단의 **Open in Colab** 버튼을 누른 뒤 노트북의 셀을 위에서부터 순서대로 실행하면 됩니다.
+README 상단의 **Open in Colab** 버튼을 누른 뒤 셀을 위에서부터 순서대로 실행하면 됩니다.
 
-노트북은 실행할 때 GitHub의 최신 `simulation/ehd_venturi_colab_complete.py`를 자동으로 내려받습니다. 따라서 시뮬레이터 코드를 GitHub에서 수정하면 다음 Colab 실행부터 최신 버전이 반영됩니다.
+노트북은 GitHub의 최신 시뮬레이터와 실험 로거를 자동으로 내려받습니다.
 
-## Main simulator
-
-`simulation/ehd_venturi_colab_complete.py`
-
-현재 시뮬레이터는 다음을 계산/표시합니다.
-
-- 축대칭 벤츄리 형상
-- 방전 전극 / 유도 전극 / 가속 전극 배치
-- 축대칭 Laplace 전위 해석
-- 전기장 크기
-- 경험적 공간전하 분포
-- Coulomb 체적력 `f = rho_e E`
-- 벤츄리 면적비 기반 배경 유속
-- 단순화된 EHD 유속 증가량 `du`
-- 축대칭 체적 적분 기반 모델 힘 `Fx`
-
-## Manual Google Colab execution
-
-직접 실행하려면 Colab 첫 셀에서:
-
-```python
-%pip install -q numpy scipy matplotlib ipywidgets
-%matplotlib inline
-```
-
-그 다음 `simulation/ehd_venturi_colab_complete.py` 전체를 실행하거나, 저장소를 Colab에 불러와 `%run`으로 실행하면 됩니다.
-
-예시:
-
-```python
-%run simulation/ehd_venturi_colab_complete.py
-```
-
-UI가 표시되면 슬라이더 값을 조절하고 `RECALCULATE` 버튼을 눌러 새 결과를 계산합니다.
-
-## Main controls
+## Simulator controls
 
 - `r_in`: 입구 반지름
 - `r_th`: throat 반지름
@@ -69,29 +33,77 @@ UI가 표시되면 슬라이더 값을 조절하고 `RECALCULATE` 버튼을 눌�
 - `v_dis`: 방전 전극 전압
 - `v_ind`: 유도 전극 전압
 - `v_acc`: 가속 전극 전압
-- `acc_offset`: throat 기준 가속 전극 시작 위치
+- `acc_offset`: 가속 전극 시작 위치
 - `acc_length`: 가속 전극 길이
 
-## Outputs
+## Experiment logger
 
-주요 출력은 다음과 같습니다.
+시뮬레이터를 실행한 뒤 `experiment_tools.py` 패널에서 다음 실측값을 입력할 수 있습니다.
 
-1. Geometry + empirical charge density
-2. Electric potential
-3. Electric field magnitude
-4. EHD-only velocity increment
-5. Model body-force integral `Fx`
-6. throat 평균 `du`
-7. throat 평균 전체 유속
-8. outlet 평균 전체 유속
+- emitter type
+- emitter diameter [mm]
+- collector type
+- electrode gap [mm]
+- measured voltage [kV]
+- measured current [mA]
+- measured outlet velocity [m/s]
+
+### Buttons
+
+- **SAVE EXPERIMENT**: 현재 시뮬레이터 조건으로 다시 계산한 뒤 실측값과 함께 `experiment_results.csv`에 한 행 추가
+- **SHOW COMPARISON**: 실측값과 시뮬레이션값 비교 그래프 출력
+- **DOWNLOAD CSV**: 현재 실험 CSV를 PC로 다운로드
+- **UPLOAD CSV**: 이전 실험 CSV를 업로드하여 이어서 기록
+
+## CSV output
+
+각 실험 행에는 다음과 같은 값이 함께 저장됩니다.
+
+- test ID / timestamp
+- emitter / collector 정보
+- electrode gap
+- measured voltage / current / velocity
+- 현재 벤츄리 형상과 전극 전압 설정
+- simulated force [mN]
+- simulated throat velocity increment
+- simulated throat / outlet velocity
+- velocity error [m/s]
+- velocity error [%]
+- electrical power [W]
+- model force per watt [mN/W]
+- measured velocity gain
+
+전력은 실측 `kV × mA = W` 관계로 계산합니다.
+
+## Comparison graphs
+
+현재 자동 비교 그래프는 다음 4개입니다.
+
+1. measured outlet velocity vs simulated outlet velocity
+2. measured voltage vs measured velocity
+3. measured current vs measured velocity
+4. test ID별 measured vs simulated velocity
+
+또한 저장된 데이터가 있으면 평균/중앙 velocity error [%]를 출력합니다.
+
+## Main simulator outputs
+
+- Geometry + empirical charge density
+- Electric potential
+- Electric field magnitude
+- EHD-only velocity increment
+- Model body-force integral `Fx`
+- throat 평균 `du`
+- throat 평균 전체 유속
+- outlet 평균 전체 유속
 
 ## Important limitation
 
 현재 모델은 정량 검증된 코로나 방전 / 플라즈마-CFD / 실제 추력 예측 모델이 아닙니다.
 
-특히 공간전하 `rho_e`는 전하수송 방정식을 직접 푸는 대신 전극으로부터의 거리와 전기장 활성화 계수를 이용한 경험적 모델입니다. 유동 역시 완전한 Navier–Stokes 해석이 아니라 벤츄리 면적비 기반 배경 유속과 `fx / rho * response_time` 형태의 단순 EHD 반응 모델을 사용합니다.
+특히 공간전하 `rho_e`는 전하수송 방정식을 직접 푸는 대신 전극 거리와 전기장 활성화를 이용한 경험적 모델입니다. 유동 역시 완전한 Navier–Stokes 해석이 아니라 벤츄리 면적비 기반 배경 유속과 단순 EHD 반응 모델을 사용합니다.
 
-따라서 현재 출력되는 `Fx`, `du`, 유속 값은 실험 추력의 절대값으로 사용하기보다 전극 위치, 형상, 전압 변화에 따른 상대 비교 지표로 사용하는 것이 적절합니다.
+따라서 현재 출력되는 `Fx`, `du`, 유속 값은 절대 성능 예측값보다 실험 조건 간 상대 비교와 향후 모델 보정용으로 사용하는 것이 적절합니다.
 
 ## Planned improvements
 
@@ -100,6 +112,5 @@ UI가 표시되면 슬라이더 값을 조절하고 `RECALCULATE` 버튼을 눌�
 - ion mobility / diffusion 반영
 - Poisson equation에 공간전하 항 결합
 - 축대칭 Navier–Stokes 압력-속도 결합
-- 실제 실험 데이터 기반 `rho_e` 및 유동 모델 보정
-- 전극 형상 세분화
-- 실험 결과 CSV와 시뮬레이션 결과 비교 자동화
+- 실제 실험 데이터 기반 `rho_e`, `CHARGE_DECAY`, `EHD_RESPONSE_TIME` 보정
+- 형상별/간격별 자동 회귀 및 실험 설계 분석
