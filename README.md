@@ -1,5 +1,7 @@
 # Alpha Project — EHD Venturi Simulator
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/seunghyun949-dot/alpha-project/blob/main/notebooks/ehd_venturi_colab.ipynb)
+
 이 저장소는 알파프로젝트용 축대칭 EHD(Electrohydrodynamic) 벤츄리 시뮬레이터 코드를 관리합니다.
 
 현재 구현은 Google Colab에서 실행하는 것을 기준으로 하며, `ipywidgets` 기반 UI를 사용해 벤츄리 형상과 전극 전압/위치를 조절한 뒤 결과를 다시 계산할 수 있습니다.
@@ -8,11 +10,19 @@
 
 ```text
 alpha-project/
+├─ notebooks/
+│  └─ ehd_venturi_colab.ipynb
 ├─ simulation/
 │  └─ ehd_venturi_colab_complete.py
 ├─ README.md
 └─ requirements.txt
 ```
+
+## Fastest way to run
+
+README 상단의 **Open in Colab** 버튼을 누른 뒤 노트북의 셀을 위에서부터 순서대로 실행하면 됩니다.
+
+노트북은 실행할 때 GitHub의 최신 `simulation/ehd_venturi_colab_complete.py`를 자동으로 내려받습니다. 따라서 시뮬레이터 코드를 GitHub에서 수정하면 다음 Colab 실행부터 최신 버전이 반영됩니다.
 
 ## Main simulator
 
@@ -30,9 +40,9 @@ alpha-project/
 - 단순화된 EHD 유속 증가량 `du`
 - 축대칭 체적 적분 기반 모델 힘 `Fx`
 
-## Google Colab 실행
+## Manual Google Colab execution
 
-Colab 첫 셀에서:
+직접 실행하려면 Colab 첫 셀에서:
 
 ```python
 %pip install -q numpy scipy matplotlib ipywidgets
